@@ -11,6 +11,8 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $generateHtmlFromNodes } from '@lexical/html';
+
 
 import './editor.css';
 
@@ -28,6 +30,25 @@ function onError(error: Error): void {
   console.error(error);
 }
 
+const SaveHtmlPlugin: React.FC = () => {
+  const [editor] = useLexicalComposerContext();
+
+  const saveHtml = () => {
+    editor.getEditorState().read(() => {
+      const htmlString = $generateHtmlFromNodes(editor, null);
+      console.log('Editor HTML:', htmlString);
+      // You can also store this in localStorage or send to server
+      // localStorage.setItem('editorContent', htmlString);
+    });
+  };
+
+  return (
+    <button onClick={saveHtml} className="save-button">
+      Save as HTML
+    </button>
+  );
+};
+
 const ToolbarPlugin: React.FC = () => {
   const [editor] = useLexicalComposerContext();
   const [isBold, setIsBold] = useState(false);
@@ -38,10 +59,20 @@ const ToolbarPlugin: React.FC = () => {
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {
-      setIsBold(selection.hasFormat('bold'));
-      setIsItalic(selection.hasFormat('italic'));
-      setIsCode(selection.hasFormat('code'));
-      setIsUnderline(selection.hasFormat('underline'));
+      const bold = selection.hasFormat('bold');
+      const italic = selection.hasFormat('italic');
+      const code = selection.hasFormat('code');
+      const underline = selection.hasFormat('underline');
+
+      const selectedText = selection.getTextContent();
+      if (selectedText.length > 0) {
+        console.log(`Text highlighted: "${selectedText}"`);
+      }
+    
+      setIsBold(bold);
+      setIsItalic(italic);
+      setIsCode(code);
+      setIsUnderline(underline);
     }
   }, []);
 
@@ -56,28 +87,40 @@ const ToolbarPlugin: React.FC = () => {
   return (
     <div className="toolbar">
       <button
-        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
+        onClick={() => {
+          console.log('Bold button clicked');
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+        }}
         className={isBold ? 'active' : ''}
         aria-label="Bold"
       >
         B
       </button>
       <button
-        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
+        onClick={() => {
+          console.log('Italic button clicked');
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
+        }}
         className={isItalic ? 'active' : ''}
         aria-label="Italic"
       >
         I
       </button>
       <button
-        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')}
+        onClick={() => {
+          console.log('Underline button clicked');
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
+        }}
         className={isUnderline ? 'active' : ''}
         aria-label="Underline"
       >
         U
       </button>
       <button
-        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')}
+        onClick={() => {
+          console.log('Code button clicked');
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
+        }}
         className={isCode ? 'active' : ''}
         aria-label="Code"
       >
@@ -86,6 +129,7 @@ const ToolbarPlugin: React.FC = () => {
     </div>
   );
 };
+
 
 const Editor: React.FC = () => {
   const initialConfig = {
@@ -109,6 +153,7 @@ const Editor: React.FC = () => {
       
       <HistoryPlugin />
       <AutoFocusPlugin />
+      <SaveHtmlPlugin /> {/* Add this line */}
     </LexicalComposer>
   );
 };
