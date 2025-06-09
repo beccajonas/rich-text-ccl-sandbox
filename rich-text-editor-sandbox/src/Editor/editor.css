@@ -1,0 +1,47 @@
+.editor-input {
+  height: 200px;              /* Fixed height */
+  overflow-y: auto;           /* Enable vertical scroll */
+  border: 2px solid #ccc;
+  padding: 10px;
+  font-size: 16px;
+  outline: none;
+  max-width: 700px;
+}
+
+  .editor-placeholder {
+    color: #aaa;
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+  }
+  
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 5px;
+  }
+  
+  .toolbar button {
+    padding: 5px 10px;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    cursor: pointer;
+  }
+  
+  .toolbar button.active {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .toolbar button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .editor-text-underline {
+    text-decoration: underline;
+  }
+
+  
