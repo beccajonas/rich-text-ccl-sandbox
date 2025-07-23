@@ -2,18 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   $getSelection,
   $isRangeSelection,
-  FORMAT_TEXT_COMMAND,
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {
-    INSERT_ORDERED_LIST_COMMAND,
-    INSERT_UNORDERED_LIST_COMMAND,
-    REMOVE_LIST_COMMAND,
-    $isListNode,
-  } from '@lexical/list';
-  
-import type { TextFormatType } from 'lexical';
+import ListButtons from './ToolbarButtons/ListButtons'; 
+import TextFormatButtons from './ToolbarButtons/TextFormatButtons';
 
+import { $isListNode } from '@lexical/list';
 
 const ToolbarPlugin: React.FC = () => {
   const [editor] = useLexicalComposerContext();
@@ -24,6 +18,7 @@ const ToolbarPlugin: React.FC = () => {
     code: false,
     orderedList: false,
     unorderedList: false,
+    highlight: false
   });
 
   const updateToolbar = useCallback(() => {
@@ -38,6 +33,7 @@ const ToolbarPlugin: React.FC = () => {
         italic: selection.hasFormat('italic'),
         underline: selection.hasFormat('underline'),
         code: selection.hasFormat('code'),
+        highlight: selection.hasFormat('highlight'),
         orderedList: listType === 'number',
         unorderedList: listType === 'bullet',
       });
@@ -50,53 +46,14 @@ const ToolbarPlugin: React.FC = () => {
     });
   }, [editor, updateToolbar]);
   
-  const formatButtons: { type: TextFormatType; label: string }[] = [
-    { type: 'bold', label: 'B' },
-    { type: 'italic', label: 'I' },
-    { type: 'underline', label: 'U' },
-    { type: 'code', label: '</>' },
-  ];
   
   return (
     <div className="toolbar">
-      {formatButtons.map(({ type, label }) => (
-        <button
-          key={type}
-          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, type)}
-          className={formats[type as keyof typeof formats] ? 'active' : ''}
-          aria-label={type}
-        >
-          {label}
-        </button>
-      ))}
-  
-      <button
-        onClick={() => {
-          if (formats.orderedList) {
-            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
-          } else {
-            editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-          }
-        }}
-        className={formats.orderedList ? 'active' : ''}
-        aria-label="ordered list"
-      >
-        OL
-      </button>
-  
-      <button
-        onClick={() => {
-          if (formats.unorderedList) {
-            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
-          } else {
-            editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-          }
-        }}
-        className={formats.unorderedList ? 'active' : ''}
-        aria-label="unordered list"
-      >
-        UL
-      </button>
+     <TextFormatButtons activeFormats={formats} />
+     <ListButtons
+        orderedListActive={formats.orderedList}
+        unorderedListActive={formats.unorderedList}
+     />
     </div>
   );
 }  
